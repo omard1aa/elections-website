@@ -1,0 +1,27 @@
+.myfooter {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    padding: 1rem;
+    text-align: center;;
+    background: lightgoldenrodyellow; 
+    color: #333333; 
+}
+
+.hover-to-show {
+    overflow: hidden;
+    max-height: 0px;
+    -o-transition: all 1s ease-in-out;
+    -moz-transition: all 1s ease-in-out;
+    -webkit-transition: all 1s ease-in-out;
+    transition: all 1s ease-in-out;
+  }
+  .hover-to-show-content:hover .hover-to-show {
+    max-height: 500px;
+  }
+
+.elect {
+    background-color: burlywood;
+    border-radius: 25px;
+    padding: 15px;
+  }
