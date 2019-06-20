@@ -4,13 +4,13 @@ from sqlalchemy.orm import sessionmaker
 from database_setup import Elect, User, Base
 from flask_httpauth import HTTPBasicAuth
 from functools import wraps
-
 import os
 app = Flask(__name__)
 engine = create_engine('sqlite:///my-db.db')
 Base.metadata.bind = engine
 auth = HTTPBasicAuth()
-
+elects_list = []
+elects_dict = dict()
 web_session = login_session
 
 def login_required(f):
@@ -40,6 +40,7 @@ def show_elects():
     DBSession = sessionmaker(bind=engine)
     session = DBSession()
     elects = session.query(Elect).all()
+    
     return render_template('elects.htm', elects=elects)
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -63,7 +64,7 @@ def login():
             flash('Verified user you have now more previliges')
             return redirect(url_for('private', name=user.username))
     else:
-        return render_template('login.htm')
+        return render_template('login.htm', check=True)
 
 
 @app.route('/register', methods=["GET", "POST"])
@@ -95,7 +96,7 @@ def register():
             session.add(newUser)
             session.commit()
             flash('Congratulations! you have created your new account!\nLogin now to have more privileges')
-            return render_template('user.htm', check=check)
+            return redirect(url_for('login'))
     else:
         return render_template('register.htm')
 
@@ -106,16 +107,18 @@ def private(name):
     DBSession = sessionmaker(bind=engine)
     session = DBSession()
     elects = session.query(Elect).all()
-    return render_template('user.htm', elects=elects)
+    return render_template('user.htm', elects=elects, name=name, check=True)
 
 
 @app.route("/add", methods=['GET', 'POST'])
 @auth.login_required    
 def add_elect():
+    DBSession = sessionmaker(bind=engine)
+    session = DBSession()
+    user = session.query(User).filter_by(id=1).first()
     if request.method == 'POST':
         check = False
-        DBSession = sessionmaker(bind=engine)
-        session = DBSession()
+        
         name = request.form['name']
         description = request.form['description']
         image_fname = request.form['image']
@@ -124,15 +127,37 @@ def add_elect():
             flash('Sorry, %s already exists' %(name))
             return render_template('user.htm', check=check)
         else:
-            elect = Elect(name=name, description=description, image=image_fname)
+            elect = Elect(name=name, description=description, image=image_fname, vote=0)
             session.add(elect)
             session.commit()
+            elects_list.append(elect.name)
             check = True
             flash('%s added to elects list.' %(name))
-            return render_template('user.htm', check=check, elects=elects)
+            return redirect(url_for('private', name=user.username))
+
     else:
         return render_template('add_form.htm')
-    return render_template('add_form.htm')
+
+
+@app.route('/chart/<int:id>', methods=['GET'])
+@auth.login_required
+def get_chart(id):
+    
+    print(id)
+    DBSession = sessionmaker(bind=engine)
+    session = DBSession()
+    elect = session.query(Elect).filter_by(id=id).one()
+    elects = session.query(Elect.name).all()
+    electsid = session.query(Elect.id).all()
+
+    electsvotes = session.query(Elect.vote).all()
+    elect.vote = elect.vote + 1
+    newelectsvotes = session.query(Elect.vote).all()
+    session.commit()
+    print(elect.vote)
+    #print(electvote)
+    return render_template('chart.htm', elects=elects, electsvotes=newelectsvotes, electsid=electsid)
+
 
 if __name__ == '__main__':
     app.secret_key = "Super_secret_key"

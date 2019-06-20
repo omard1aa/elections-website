@@ -12,7 +12,7 @@
     <title>Profile</title>
 </head>
 <body>
-<nav class="navbar navbar-expand navbar-dark bg-dark">
+<nav class="navbar navbar-expand navbar-light bg-light">
         <a class="navbar-brand" href="{{url_for('index')}}">Elections website</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -23,14 +23,11 @@
                 <li class="nav-item active">
                     <a class="nav-link" href="{{url_for('index')}}">Home <span class="sr-only">(current)</span></a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Show results</a>
-                </li>
+               
             </ul>
         <form class="form-inline my-2 my-lg-0">
             <input style="margin-right: 400px;" class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
             <button style="margin-right: 400px;" class="btn btn-outline-primary my-2 my-sm-0" type="submit">Search</button>
-            <button class="btn btn-primary">Login</button>
         </form>
     </div>
 </nav>
@@ -67,6 +64,7 @@
             <div class="row" style="margin: 15px;">
                 <div class="col-sm-8">
                     {% for elect in elects %}
+
                     <div class="media hover-to-show-content elect">
                         <img class="d-flex mr-3 rounded-circle" style="height: 100px; width: 100px;" src="../static/pics/{{ elect.image }}" alt="Generic placeholder image">
                         <div class="media-body">
@@ -75,10 +73,15 @@
                                 {{elect.description}}
                             </p>
                         </div>
+                        <form action="{{url_for('get_chart', elects=elects, id=elect.id)}}" methods="GET">
+                            <button type="submit" class="btn btn-primary">Vote!</button>
+                        </form>
+                            
                     </div>
                     <br>
                     <hr>
                     {% endfor %}
+
                     <br>
                 </div>
             </div>

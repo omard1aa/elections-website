@@ -11,8 +11,9 @@ class Elect(Base):
     __tablename__ = 'elect'
     id = Column(Integer, primary_key=True)
     name = Column(String(64), unique=True)
-    description = Column(String(64))
+    description = Column(String(1000))
     image = Column(String(20))
+    vote = Column(Integer)
     @property
     def serialize(self):
         return {
