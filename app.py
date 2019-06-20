@@ -9,8 +9,6 @@ app = Flask(__name__)
 engine = create_engine('sqlite:///my-db.db')
 Base.metadata.bind = engine
 auth = HTTPBasicAuth()
-elects_list = []
-elects_dict = dict()
 web_session = login_session
 
 def login_required(f):
@@ -103,7 +101,7 @@ def register():
 
 @app.route("/profile/<string:name>", methods=['GET', 'POST'])
 @auth.login_required
-def private(name):
+def private(name): # This function return the user profile page
     DBSession = sessionmaker(bind=engine)
     session = DBSession()
     elects = session.query(Elect).all()
@@ -130,7 +128,6 @@ def add_elect():
             elect = Elect(name=name, description=description, image=image_fname, vote=0)
             session.add(elect)
             session.commit()
-            elects_list.append(elect.name)
             check = True
             flash('%s added to elects list.' %(name))
             return redirect(url_for('private', name=user.username))
